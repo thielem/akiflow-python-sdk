@@ -144,7 +144,8 @@ class Task:
             **extra: Additional fields passed directly to the API.
 
         Returns:
-            The created task dict as returned by the API.
+            A `TaskResult` dict. Supports direct mutation via
+            `task.update(...)`, `task.done()`, and `task.delete()`.
 
         Example:
             ```python
@@ -216,10 +217,8 @@ class Task:
         }
 
         resp = self._client._patch("/v5/tasks", json=[task])
-        # Return the single created task
-        if resp.get("data"):
-            return resp["data"][0]
-        return resp
+        data = resp["data"][0] if resp.get("data") else resp
+        return TaskResult(data, self)
 
     def update(self, task_id: str, **fields: Any) -> dict:
         """Update a task by ID.
