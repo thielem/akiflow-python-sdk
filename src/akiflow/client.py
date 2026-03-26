@@ -79,9 +79,7 @@ class Akiflow:
             self._access_token = tokens["access_token"]
             self._refresh_token = tokens["refresh_token"]
             self._client_id = tokens["client_id"]
-            print(f"\nAuthenticated successfully. Save these for next time:")
-            print(f"  access_token:  {self._access_token[:50]}...")
-            print(f"  refresh_token: {self._refresh_token[:50]}...")
+            print("\nAuthenticated successfully.")
 
         if not self._access_token:
             if self._refresh_token:
