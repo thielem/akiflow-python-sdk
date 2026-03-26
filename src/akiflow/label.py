@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from .client import Akiflow
 
 
-class LabelAPI:
+class Label:
     """Operations on Akiflow labels/projects, available as `client.label`.
 
     Labels are what Akiflow calls "projects" in the UI. Tasks reference

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from .client import Akiflow
 
 
-class TaskAPI:
+class Task:
     """Operations on Akiflow tasks, available as `client.task`.
 
     All mutations go through `PATCH /v5/tasks` (Akiflow uses upsert semantics).

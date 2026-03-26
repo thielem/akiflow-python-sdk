@@ -10,8 +10,8 @@ import httpx
 
 from .auth import interactive_login, refresh_access_token
 from .exceptions import APIError, TokenExpiredError
-from .label import LabelAPI
-from .task import TaskAPI
+from .label import Label
+from .task import Task
 
 API_BASE = "https://api.akiflow.com"
 
@@ -91,11 +91,11 @@ class Akiflow:
             verify=self._verify_ssl,
         )
 
-        self.label = LabelAPI(self)
-        """Label/project operations. See `akiflow.label.LabelAPI`."""
+        self.label = Label(self)
+        """Label/project operations. See `akiflow.label.Label`."""
 
-        self.task = TaskAPI(self)
-        """Task operations. See `akiflow.task.TaskAPI`."""
+        self.task = Task(self)
+        """Task operations. See `akiflow.task.Task`."""
 
     def _auth_headers(self) -> dict[str, str]:
         return {
