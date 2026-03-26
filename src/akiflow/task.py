@@ -220,7 +220,7 @@ class Task:
         data = resp["data"][0] if resp.get("data") else resp
         return TaskResult(data, self)
 
-    def update(self, task_id: str, **fields: Any) -> dict:
+    def update(self, task_id: str, **fields: Any) -> TaskResult:
         """Update a task by ID.
 
         Only pass the fields you want to change. The `global_updated_at`
@@ -275,11 +275,10 @@ class Task:
         payload.update(fields)
 
         resp = self._client._patch("/v5/tasks", json=[payload])
-        if resp.get("data"):
-            return resp["data"][0]
-        return resp
+        data = resp["data"][0] if resp.get("data") else resp
+        return TaskResult(data, self)
 
-    def delete(self, task_id: str) -> dict:
+    def delete(self, task_id: str) -> TaskResult:
         """Soft-delete a task.
 
         Sets `trashed_at` to the current time. The task can still be
@@ -304,11 +303,10 @@ class Task:
             "global_updated_at": now,
         }
         resp = self._client._patch("/v5/tasks", json=[payload])
-        if resp.get("data"):
-            return resp["data"][0]
-        return resp
+        data = resp["data"][0] if resp.get("data") else resp
+        return TaskResult(data, self)
 
-    def done(self, task_id: str, *, date: str | None = None) -> dict:
+    def done(self, task_id: str, *, date: str | None = None) -> TaskResult:
         """Mark a task as done.
 
         Args:
