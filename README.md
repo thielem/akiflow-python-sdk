@@ -7,7 +7,7 @@
 
 > **Disclaimer:** This project is **not affiliated with, endorsed by, or associated with Akiflow** in any way. It is an unofficial, community-built SDK. The underlying API is undocumented and **may change at any time without notice**, which could break this library. Use at your own risk.
 
-A lightweight Python SDK for the Akiflow task management API. Built on `httpx` with full type annotations.
+A lightweight Python SDK for the Akiflow task management software. Built on `httpx` with full type annotations.
 
 ## Status
 
@@ -33,7 +33,7 @@ pip install akiflow
 Or with [uv](https://github.com/astral-sh/uv):
 
 ```bash
-uv pip install akiflow
+uv add akiflow
 ```
 
 ## Quick Start

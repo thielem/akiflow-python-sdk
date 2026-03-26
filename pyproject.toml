@@ -8,7 +8,7 @@ version = "0.0.1"
 authors = [
     { name = "Moritz Thiele" },
 ]
-description = "Unofficial Python SDK for the Akiflow task management API."
+description = "Unofficial Python SDK for the Akiflow task management software."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

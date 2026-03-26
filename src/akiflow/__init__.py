@@ -1,9 +1,16 @@
 """
 # Akiflow SDK
 
-Unofficial Python SDK for the [Akiflow](https://akiflow.com) task management API.
+Unofficial Python SDK for the [Akiflow](https://akiflow.com) task management software.
 
 ## Quick Start
+
+Install the SDK:
+```bash
+pip install akiflow
+# or
+uv add akiflow
+```
 
 ```python
 from akiflow import Akiflow
