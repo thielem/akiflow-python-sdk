@@ -26,9 +26,9 @@ class Akiflow:
 
     There are three ways to authenticate:
 
-    **Interactive login** (prompts for 2FA code):
+    **Interactive login** (prompts for email + 2FA code):
     ```python
-    client = Akiflow(email="you@example.com")
+    client = Akiflow()
     ```
 
     **Access token + refresh token** (no prompt, auto-refreshes):
@@ -69,7 +69,12 @@ class Akiflow:
         self._access_token: str | None = access_token
         self._refresh_token: str | None = refresh_token
 
-        if email and not access_token:
+        if not email and not access_token and not refresh_token:
+            email = input("Akiflow account email: ").strip()
+            if not email:
+                raise ValueError("Email is required for interactive login")
+
+        if email and not self._access_token:
             tokens = interactive_login(email, client_id=self._client_id, verify_ssl=self._verify_ssl)
             self._access_token = tokens["access_token"]
             self._refresh_token = tokens["refresh_token"]

@@ -13,7 +13,6 @@ print("Loaded tokens from file")
 client = Akiflow(
     access_token=tokens["access_token"],
     refresh_token=tokens["refresh_token"],
-    debug=True,
     verify_ssl=False
 )
 

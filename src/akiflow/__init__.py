@@ -8,8 +8,8 @@ Unofficial Python SDK for the [Akiflow](https://akiflow.com) task management API
 ```python
 from akiflow import Akiflow
 
-# Interactive login (prompts for 2FA code via email)
-client = Akiflow(email="you@example.com")
+# Interactive login (prompts for email + 2FA code)
+client = Akiflow()
 
 # Or reuse saved tokens (no interactive prompt)
 client = Akiflow(access_token="eyJ...", refresh_token="def50200...")
@@ -46,7 +46,8 @@ a `refresh_token` is enough for persistent scripts.
 Pass `debug=True` to print every request and response:
 
 ```python
-client = Akiflow(email="you@example.com", debug=True)
+client = Akiflow(email="you@example.com", debug=True)  # or omit email to be prompted
+
 ```
 
 Pass `verify_ssl=False` to disable SSL verification (useful with Proxyman/Charles):

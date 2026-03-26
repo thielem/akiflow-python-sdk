@@ -11,7 +11,6 @@ tokens = json.loads(TOKEN_FILE.read_text())
 client = Akiflow(
     access_token=tokens["access_token"],
     refresh_token=tokens["refresh_token"],
-    debug=True,
     verify_ssl=False,
 )
 

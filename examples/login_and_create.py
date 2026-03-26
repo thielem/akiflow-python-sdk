@@ -7,7 +7,8 @@ from akiflow import Akiflow
 
 TOKEN_FILE = Path(__file__).parent / ".tokens.json"
 
-client = Akiflow(email="you@example.com", debug=True)
+email = input("Email: ").strip()
+client = Akiflow(email=email)
 
 # Save tokens for reuse
 TOKEN_FILE.write_text(

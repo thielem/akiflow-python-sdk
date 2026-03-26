@@ -48,7 +48,7 @@ def interactive_login(email: str, client_id: str | None = None, verify_ssl: bool
         ```python
         from akiflow.auth import interactive_login
 
-        tokens = interactive_login("you@example.com")
+        tokens = interactive_login("you@example.com")  # or prompt for it
         print(tokens["access_token"])
         ```
     """
