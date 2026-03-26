@@ -26,7 +26,7 @@ Full API documentation is available at [thielem.github.io/akiflow-python-sdk](ht
 
 ## Installation
 
-Requires Python 3.13+.
+Requires Python 3.10+.
 
 ```bash
 pip install akiflow
