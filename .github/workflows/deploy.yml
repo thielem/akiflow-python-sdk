@@ -1,0 +1,132 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, for example 0.0.1"
+        required: true
+        default: "0.0.1"
+        type: string
+
+jobs:
+  bump-version:
+    name: Bump version and tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      tag: ${{ steps.release.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set release metadata
+        id: release
+        run: |
+          echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Check tag does not already exist
+        run: |
+          if git rev-parse "${{ steps.release.outputs.tag }}" >/dev/null 2>&1; then
+            echo "Tag ${{ steps.release.outputs.tag }} already exists"
+            exit 1
+          fi
+
+      - name: Update package version
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          version = __import__("os").environ["RELEASE_VERSION"]
+          files = [Path("pyproject.toml"), Path("uv.lock")]
+
+          for path in files:
+              lines = path.read_text().splitlines()
+              for index, line in enumerate(lines):
+                  if line.startswith('version = "') and index > 0 and 'name = "akiflow"' in lines[index - 1]:
+                      lines[index] = f'version = "{version}"'
+                      break
+              else:
+                  raise SystemExit(f"Could not update version in {path}")
+              path.write_text("\n".join(lines) + "\n")
+          PY
+
+      - name: Refresh lockfile
+        run: uv lock
+
+      - name: Commit release changes and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pyproject.toml uv.lock
+          if git diff --cached --quiet; then
+            echo "No version changes to commit"
+          else
+            git commit -m "Release ${{ steps.release.outputs.tag }}"
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi
+          git tag "${{ steps.release.outputs.tag }}"
+          git push origin "${{ steps.release.outputs.tag }}"
+
+  build:
+    name: Build distribution
+    needs:
+      - bump-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.bump-version.outputs.tag }}
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Build a binary wheel and a source tarball
+        run: uv build
+
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v5
+        with:
+          name: python-package-distributions
+          path: dist/
+
+  publish-to-pypi:
+    name: Publish Python distribution to PyPI
+    needs:
+      - build
+      - bump-version
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/akiflow
+    permissions:
+      id-token: write
+    steps:
+      - name: Download all the dists
+        uses: actions/download-artifact@v6
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Publish distribution to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

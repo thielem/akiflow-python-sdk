@@ -1,5 +1,8 @@
 # Akiflow Python SDK
 
+[![PyPI version](https://img.shields.io/pypi/v/akiflow)](https://pypi.org/project/akiflow/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 > **Work in Progress:** This project is under active development and is not yet ready for production use.
 
 > **Disclaimer:** This project is **not affiliated with, endorsed by, or associated with Akiflow** in any way. It is an unofficial, community-built SDK. The underlying API is undocumented and **may change at any time without notice**, which could break this library. Use at your own risk.
