@@ -10,6 +10,37 @@ if TYPE_CHECKING:
     from .client import Akiflow
 
 
+class TaskResult(dict):
+    """A task dict with convenience methods for mutation.
+
+    Returned by `client.task.create()` and `client.task.update()`.
+    Behaves like a normal dict but also supports direct method calls:
+
+    ```python
+    task = client.task.create("Buy groceries")
+    task.update(title="Buy organic groceries")
+    task.done()
+    task.delete()
+    ```
+    """
+
+    def __init__(self, data: dict, api: Task):
+        super().__init__(data)
+        self._api = api
+
+    def update(self, **fields: Any) -> TaskResult:
+        """Update this task. See `Task.update`."""
+        return self._api.update(self["id"], **fields)
+
+    def done(self, **kwargs: Any) -> TaskResult:
+        """Mark this task as done. See `Task.done`."""
+        return self._api.done(self["id"], **kwargs)
+
+    def delete(self) -> TaskResult:
+        """Soft-delete this task. See `Task.delete`."""
+        return self._api.delete(self["id"])
+
+
 class Task:
     """Operations on Akiflow tasks, available as `client.task`.
 
@@ -89,7 +120,7 @@ class Task:
         section_id: str | None = None,
         links: list[str] | None = None,
         **extra: Any,
-    ) -> dict:
+    ) -> TaskResult:
         """Create a new task.
 
         By default, tasks land in the **inbox** (`status=1`). To schedule a
