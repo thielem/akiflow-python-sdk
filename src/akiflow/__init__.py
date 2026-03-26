@@ -58,5 +58,7 @@ client = Akiflow(access_token="...", verify_ssl=False)
 
 from .client import Akiflow
 from .exceptions import AkiflowError, APIError, AuthError, TokenExpiredError
+from .label import LabelAPI
+from .task import TaskAPI
 
-__all__ = ["Akiflow", "AkiflowError", "APIError", "AuthError", "TokenExpiredError"]
+__all__ = ["Akiflow", "LabelAPI", "TaskAPI", "AkiflowError", "APIError", "AuthError", "TokenExpiredError"]

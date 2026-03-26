@@ -10,6 +10,7 @@ import httpx
 
 from .auth import interactive_login, refresh_access_token
 from .exceptions import APIError, TokenExpiredError
+from .label import LabelAPI
 from .task import TaskAPI
 
 API_BASE = "https://api.akiflow.com"
@@ -21,6 +22,7 @@ class Akiflow:
     Provides access to Akiflow resources through sub-clients:
 
     - `client.task` — create, update, delete, and list tasks
+    - `client.label` — create, update, delete, and list labels/projects
 
     There are three ways to authenticate:
 
@@ -88,6 +90,9 @@ class Akiflow:
             timeout=30.0,
             verify=self._verify_ssl,
         )
+
+        self.label = LabelAPI(self)
+        """Label/project operations. See `akiflow.label.LabelAPI`."""
 
         self.task = TaskAPI(self)
         """Task operations. See `akiflow.task.TaskAPI`."""

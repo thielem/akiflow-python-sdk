@@ -84,6 +84,7 @@ class TaskAPI:
         due_date: str | None = None,
         priority: int | None = None,
         tags_ids: list[str] | None = None,
+        label: str | None = None,
         list_id: str | None = None,
         section_id: str | None = None,
         links: list[str] | None = None,
@@ -104,7 +105,9 @@ class TaskAPI:
             due_date: Hard due date (`"2026-03-28"`).
             priority: Priority level.
             tags_ids: List of tag UUIDs.
-            list_id: Project/list UUID.
+            label: Label/project name **or** UUID. Resolved automatically
+                via `client.label.resolve_id()`. Takes precedence over `list_id`.
+            list_id: Project/list UUID (use `label` for name-based lookup).
             section_id: Section within a project.
             links: List of URL strings.
             **extra: Additional fields passed directly to the API.
@@ -117,6 +120,9 @@ class TaskAPI:
             # Inbox task
             task = client.task.create("Buy groceries")
 
+            # Task assigned to a label by name
+            task = client.task.create("Review PR", label="Work")
+
             # Scheduled task with duration
             task = client.task.create(
                 "Team standup",
@@ -124,15 +130,11 @@ class TaskAPI:
                 datetime_="2026-03-27T09:00:00.000Z",
                 duration=1800,
             )
-
-            # Task with tags and project
-            task = client.task.create(
-                "Review PR",
-                tags_ids=["uuid-of-tag"],
-                list_id="uuid-of-project",
-            )
             ```
         """
+        if label is not None:
+            list_id = self._client.label.resolve_id(label)
+
         now = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
         task_id = str(uuid.uuid4())
         sorting = int(datetime.now(timezone.utc).timestamp() * 1000)
@@ -177,7 +179,7 @@ class TaskAPI:
             "deleted_at": None,
             "global_created_at": now,
             "global_updated_at": now,
-            "global_list_id_updated_at": None,
+            "global_list_id_updated_at": now if list_id else None,
             "global_tags_ids_updated_at": None,
             **extra,
         }
@@ -196,9 +198,9 @@ class TaskAPI:
 
         Args:
             task_id: UUID of the task to update.
-            **fields: Any task fields to update. Use `list_id` for the
-                project (mapped to `listId`) and `datetime_` for the
-                datetime (mapped to `datetime`).
+            **fields: Any task fields to update. Use `label` for name-based
+                project lookup, `list_id` for UUID-based, and `datetime_`
+                for the datetime field.
 
         Returns:
             The updated task dict.
@@ -208,15 +210,15 @@ class TaskAPI:
             # Rename
             client.task.update(task_id, title="New title")
 
+            # Assign to a label by name
+            client.task.update(task_id, label="Work")
+
             # Reschedule
             client.task.update(
                 task_id,
                 date="2026-04-01",
                 datetime_="2026-04-01T14:00:00.000Z",
             )
-
-            # Move to a project
-            client.task.update(task_id, list_id="uuid-of-project")
             ```
         """
         now = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
@@ -225,9 +227,18 @@ class TaskAPI:
             "global_updated_at": now,
         }
 
+        # Resolve label name/UUID -> listId
+        if "label" in fields:
+            label = fields.pop("label")
+            if label is not None:
+                fields["list_id"] = self._client.label.resolve_id(label)
+            else:
+                fields["list_id"] = None
+
         # Map python-friendly names to API names
         if "list_id" in fields:
             payload["listId"] = fields.pop("list_id")
+            payload["global_list_id_updated_at"] = now
         if "datetime_" in fields:
             payload["datetime"] = fields.pop("datetime_")
 
@@ -258,6 +269,7 @@ class TaskAPI:
         now = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
         payload = {
             "id": task_id,
+            "status": 10,
             "trashed_at": now,
             "global_updated_at": now,
         }
@@ -266,11 +278,14 @@ class TaskAPI:
             return resp["data"][0]
         return resp
 
-    def done(self, task_id: str) -> dict:
+    def done(self, task_id: str, *, date: str | None = None) -> dict:
         """Mark a task as done.
 
         Args:
             task_id: UUID of the task to complete.
+            date: Date in ``YYYY-MM-DD`` format. Defaults to today.
+                A date is required for the task to appear in Akiflow's
+                done list.
 
         Returns:
             The updated task dict with `done=True`.
@@ -278,7 +293,10 @@ class TaskAPI:
         Example:
             ```python
             client.task.done("59442bbd-a57d-464f-9fa2-2cb9678379ee")
+            client.task.done(task_id, date="2026-03-20")
             ```
         """
         now = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
-        return self.update(task_id, done=True, done_at=now)
+        if date is None:
+            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        return self.update(task_id, done=True, done_at=now, date=date, status=2)
