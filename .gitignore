@@ -3,3 +3,4 @@ reference/
 .venv/
 .claude/
 __pycache__/
+.DS_Store
