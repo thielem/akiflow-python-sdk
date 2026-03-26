@@ -18,6 +18,8 @@ This is an early proof of concept. Currently implemented:
 
 Other Akiflow features are not yet covered.
 
+**Feel free to contribute!**
+
 ## Documentation
 
 Full API documentation is available at [thielem.github.io/akiflow-python-sdk](https://thielem.github.io/akiflow-python-sdk).
