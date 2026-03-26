@@ -15,6 +15,10 @@ This is an early proof of concept. Currently implemented:
 
 Other Akiflow features are not yet covered.
 
+## Documentation
+
+Full API documentation is available at [thielem.github.io/akiflow-python-sdk](https://thielem.github.io/akiflow-python-sdk).
+
 ## Installation
 
 Requires Python 3.13+.
